@@ -61,28 +61,35 @@
         const dino = document.getElementById('dino');
         const gameArea = document.getElementById('gameArea');
         let isJumping = false;
-        let gravity = 0.9;
+        let gravity = 1.2;  // Stronger gravity for faster fall
+        let jumpSpeed = 10; // Faster jump speed
+        let fallSpeed = 8;  // Faster fall speed
 
         function jump() {
             if (isJumping) return;
             let jumpHeight = 150;
             let position = 0;
+
+            // Ascend (jump up)
             let jumpInterval = setInterval(() => {
                 if (position >= jumpHeight) {
                     clearInterval(jumpInterval);
+                    
+                    // Descend (fall down)
                     let fallInterval = setInterval(() => {
                         if (position <= 0) {
                             clearInterval(fallInterval);
                             isJumping = false;
                         }
-                        position -= 5;
+                        position -= fallSpeed;  // Faster fall
                         dino.style.bottom = `${position * gravity}px`;
                     }, 20);
                 } else {
-                    position += 5;
+                    position += jumpSpeed;  // Faster ascent
                     dino.style.bottom = `${position * gravity}px`;
                 }
             }, 20);
+
             isJumping = true;
         }
 
@@ -100,7 +107,17 @@
 
                 // Collision detection
                 let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue('bottom'));
-                if (obstaclePosition < 90 && obstaclePosition > 50 && dinoBottom < 40) {
+                let dinoLeft = 50;
+                let dinoRight = dinoLeft + 40;  // Dino's width is 40
+                let obstacleLeft = obstaclePosition;
+                let obstacleRight = obstaclePosition + 20;  // Obstacle's width is 20
+
+                // Check horizontal collision and vertical overlap
+                if (
+                    obstacleLeft < dinoRight &&  // Obstacle is overlapping Dino from the left
+                    obstacleRight > dinoLeft &&  // Obstacle is overlapping Dino from the right
+                    dinoBottom <= 40  // Dino is not jumping over the obstacle
+                ) {
                     alert('Game Over!');
                     clearInterval(moveInterval);
                     location.reload();
